@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Backtest Strategy</title>
+  </head>
+  <body>
+    <h1>Backtest Your Trading Strategy</h1>
+    <form method="post">
+      {% csrf_token %} {{ form.as_p }}
+      <button type="submit">Run Backtest</button>
+    </form>
+  </body>
+</html>

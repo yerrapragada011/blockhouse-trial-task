@@ -1,6 +1,7 @@
 from django.urls import path
-from . import views
+from .views import fetch_stock_data, backtest_strategy
 
 urlpatterns = [
-    path('fetchfinancialdata/', views.fetch_stock_data, name='fetch_stock_data'),
+    path('fetchfinancialdata/', fetch_stock_data, name='fetch_stock_data'),
+    path('backtest/', backtest_strategy, name='backtest_strategy'),
 ]

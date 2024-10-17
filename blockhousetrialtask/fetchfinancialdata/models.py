@@ -8,6 +8,7 @@ class StockData(models.Model):
     high_price = models.DecimalField(max_digits=10, decimal_places=2)
     low_price = models.DecimalField(max_digits=10, decimal_places=2)
     volume = models.BigIntegerField()
+    cash = models.DecimalField(max_digits=15, decimal_places=2, default=1000.00)
 
     class Meta:
         unique_together = ['symbol', 'date']
