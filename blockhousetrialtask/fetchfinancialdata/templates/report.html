@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Performance Report</title>
+  </head>
+  <body>
+    <h1>Performance Report for {{ symbol }}</h1>
+    <h2>Metrics</h2>
+    <ul>
+      {% for key, value in metrics.items %}
+      <li>{{ key }}: {{ value }}</li>
+      {% endfor %}
+    </ul>
+    <h2>Price Visualization</h2>
+    {% load custom_filters %}
+    <img
+      src="data:image/png;base64,{{ plot_image|b64encode }}"
+      alt="Stock Price Plot"
+    />
+  </body>
+</html>

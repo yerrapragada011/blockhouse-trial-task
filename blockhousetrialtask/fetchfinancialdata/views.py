@@ -1,16 +1,20 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.core.management import call_command
 from io import StringIO
 import requests
 from .forms import BacktestForm
 from .models import StockData, PredictedStockData
+from .reports import generate_report
 import pandas as pd
 from decimal import Decimal
 import numpy as np
 import joblib
 from datetime import timedelta
 from django.utils import timezone
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.utils import ImageReader
 
 def fetch_stock_data(request):
     API_KEY = config('ALPHA_VANTAGE_API_KEY')
@@ -20,13 +24,11 @@ def fetch_stock_data(request):
     response = requests.get(url)
     data = response.json()
 
-    # Check if the response contains the expected data
     if 'Time Series (Daily)' not in data:
         return render(request, 'error.html', {'error': 'Failed to fetch stock data'})
 
     time_series = data['Time Series (Daily)']
 
-    # Save the data to a CSV file
     with open('stock_data.csv', mode='w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(['Date', 'Open', 'High', 'Low', 'Close', 'Volume'])
@@ -39,7 +41,6 @@ def fetch_stock_data(request):
             close_price = daily_data['4. close']
             volume = daily_data['5. volume']
 
-            # Save to the database
             StockData.objects.update_or_create(
                 symbol=symbol,
                 date=date,
@@ -52,10 +53,8 @@ def fetch_stock_data(request):
                 }
             )
 
-            # Write to CSV
             writer.writerow([date, open_price, high_price, low_price, close_price, volume])
 
-    # Return success page
     return render(request, 'success.html', {'message': 'Stock data fetched and saved successfully!'})
 
 def backtest_strategy(request):
@@ -150,34 +149,28 @@ def backtest_strategy(request):
     return render(request, 'backtest.html', {'form': form})
 
 
-# Load the pre-trained model
 with open('linear_regression_model.pkl', 'rb') as f:
     model = joblib.load(f)
     print(f"Loaded model: {model}")
     print(f"Type of model: {type(model)}")
 
 def predict_stock_prices(symbol):
-    # Fetch historical data from the database
     stock_data = StockData.objects.filter(symbol=symbol).order_by('date')
 
     if not stock_data.exists():
         return None
 
-    # Prepare the data for the model (for simplicity, we'll use the close price as a feature)
     dates = np.array([stock.date for stock in stock_data])
     close_prices = np.array([stock.close_price for stock in stock_data])
 
-    # We assume the model takes a simple date range as input (we'll convert dates to ordinal numbers)
     X = np.array([date.toordinal() for date in dates]).reshape(-1, 1)
 
-    # Generate predictions for the next 30 days
     last_date = dates[-1]
     future_dates = [last_date + timedelta(days=i) for i in range(1, 31)]
     X_future = np.array([date.toordinal() for date in future_dates]).reshape(-1, 1)
 
     predicted_prices = model.predict(X_future)
 
-    # Save predictions to the database
     for date, predicted_price in zip(future_dates, predicted_prices):
         PredictedStockData.objects.update_or_create(
             symbol=symbol,
@@ -187,15 +180,12 @@ def predict_stock_prices(symbol):
 
     return predicted_prices, future_dates
 
-# API endpoint to predict stock prices
 def stock_price_predictions(request, symbol):
-    # Call the prediction function
     predictions, future_dates = predict_stock_prices(symbol)
 
     if predictions is None:
         return JsonResponse({'error': 'No historical data found for symbol: {}'.format(symbol)})
 
-    # Prepare the response
     response_data = {
         'symbol': symbol,
         'predictions': [{'date': date, 'predicted_price': price} for date, price in zip(future_dates, predictions)]
@@ -203,8 +193,35 @@ def stock_price_predictions(request, symbol):
 
     return JsonResponse(response_data)
 
-# View to show predictions in a template (optional)
 def view_predictions(request, symbol):
     predictions = PredictedStockData.objects.filter(symbol=symbol).order_by('date')
     
     return render(request, 'predictions.html', {'predictions': predictions})
+
+def report_view(request, symbol):
+    metrics, plot_image = generate_report(symbol)
+
+    if request.GET.get('format') == 'json':
+        return JsonResponse({
+            'symbol': symbol,
+            'metrics': metrics
+        })
+
+    elif request.GET.get('format') == 'pdf':
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{symbol}_report.pdf"'
+
+        c = canvas.Canvas(response, pagesize=letter)
+        c.drawString(100, 750, f'Performance Report for {symbol}')
+        c.drawString(100, 730, f"Mean Actual Price: {metrics['Mean Actual Price']:.2f}")
+        c.drawString(100, 710, f"Mean Predicted Price: {metrics['Mean Predicted Price']:.2f}")
+        c.drawString(100, 690, f"Actual Price Standard Deviation: {metrics['Actual Price Standard Deviation']:.2f}")
+        c.drawString(100, 670, f"Predicted Price Standard Deviation: {metrics['Predicted Price Standard Deviation']:.2f}")
+
+        c.drawImage(ImageReader(plot_image), 50, 400, width=500, height=300)
+        c.showPage()
+        c.save()
+
+        return response
+
+    return render(request, 'report.html', {'metrics': metrics, 'plot_image': plot_image})
