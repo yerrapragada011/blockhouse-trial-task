@@ -1,5 +1,20 @@
+# Ignore Python cache files
 __pycache__
 *.pyc
 *.pyo
+
+# Ignore git folder
+.git
+
+# Ignore environment settings
 .env
-.DS_Store
+.venv
+venv/
+
+# Ignore Django static and media files if needed
+static/
+media/
+
+# Ignore Elastic Beanstalk and AWS config files (if you removed them)
+.ebextensions/
+.elasticbeanstalk/

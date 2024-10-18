@@ -1,11 +1,21 @@
-FROM python:3.8-slim
+# Base image
+FROM python:3.9-slim
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-
+# Set the working directory in the container
 WORKDIR /app
 
-COPY requirements.txt /app/
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy the current directory contents into the container at /app
+COPY . /app
 
-COPY . /app/
+# Install any dependencies
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
+
+# Make port 8000 available to the world outside this container
+EXPOSE 8000
+
+# Define environment variable
+ENV PYTHONUNBUFFERED=1
+
+# Run the Django app
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "blockhousetrialtask.wsgi:application"]
