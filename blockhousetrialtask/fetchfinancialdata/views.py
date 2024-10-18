@@ -16,6 +16,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.utils import ImageReader
 import os
+from decouple import config
 
 def home_view(request):
     return HttpResponse("Welcome to the Stock Prediction App")
