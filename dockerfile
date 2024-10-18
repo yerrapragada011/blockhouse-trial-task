@@ -18,4 +18,4 @@ EXPOSE 8000
 ENV PYTHONUNBUFFERED=1
 
 # Run the Django app
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "blockhousetrialtask.wsgi:application"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "blockhousetrialtask.blockhousetrialtask.wsgi:application"]
