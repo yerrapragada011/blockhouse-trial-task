@@ -149,7 +149,7 @@ def backtest_strategy(request):
     return render(request, 'backtest.html', {'form': form})
 
 
-with open('linear_regression_model.pkl', 'rb') as f:
+with open('../linear_regression_model.pkl', 'rb') as f:
     model = joblib.load(f)
     print(f"Loaded model: {model}")
     print(f"Type of model: {type(model)}")
