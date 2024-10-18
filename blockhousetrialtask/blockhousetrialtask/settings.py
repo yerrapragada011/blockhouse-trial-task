@@ -81,10 +81,10 @@ WSGI_APPLICATION = 'blockhousetrialtask.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'mydatabase',
-        'USER': 'myuser',
-        'PASSWORD': 'mypassword',
-        'HOST': 'localhost',
+        'NAME': 'database-2',
+        'USER': 'postgres',
+        'PASSWORD': 'YgBM37eq6WJPXp3',
+        'HOST': 'database-2.c5eoe0mwe0wq.us-east-2.rds.amazonaws.com',
         'PORT': '5432',
     }
 }
