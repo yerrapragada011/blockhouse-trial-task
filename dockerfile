@@ -11,6 +11,9 @@ COPY . /app
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
+# Ensure 'linear_regression_model.pkl' is in the correct path
+COPY linear_regression_model.pkl /app/
+
 # Make port 8000 available to the world outside this container
 EXPOSE 8000
 
