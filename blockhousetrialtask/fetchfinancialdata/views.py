@@ -15,6 +15,7 @@ from django.utils import timezone
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.utils import ImageReader
+import os
 
 def fetch_stock_data(request):
     API_KEY = config('ALPHA_VANTAGE_API_KEY')
@@ -149,7 +150,11 @@ def backtest_strategy(request):
     return render(request, 'backtest.html', {'form': form})
 
 
-with open('../linear_regression_model.pkl', 'rb') as f:
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+model_path = os.path.join(base_dir, 'linear_regression_model.pkl')
+
+with open(model_path, 'rb') as f:
     model = joblib.load(f)
     print(f"Loaded model: {model}")
     print(f"Type of model: {type(model)}")
