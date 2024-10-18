@@ -17,6 +17,9 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.utils import ImageReader
 import os
 
+def home_view(request):
+    return HttpResponse("Welcome to the Stock Prediction App")
+
 def fetch_stock_data(request):
     API_KEY = config('ALPHA_VANTAGE_API_KEY')
     symbol = 'AAPL'
