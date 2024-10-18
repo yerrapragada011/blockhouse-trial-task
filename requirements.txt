@@ -2,3 +2,4 @@ gunicorn
 Django>=3.2,<4.0
 python-decouple
 psycopg2-binary
+requests
