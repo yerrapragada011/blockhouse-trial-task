@@ -54,7 +54,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'blockhousetrialtask.urls'
+ROOT_URLCONF = 'blockhousetrialtask.blockhousetrialtask.urls'
 
 TEMPLATES = [
     {
@@ -72,7 +72,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'blockhousetrialtask.wsgi.application'
+WSGI_APPLICATION = 'blockhousetrialtask.blockhousetrialtask.wsgi.application'
 
 
 # Database
