@@ -4,7 +4,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import pandas as pd
 from io import BytesIO
-from fetchfinancialdata.models import StockData, PredictedStockData
+from blockhousetrialtask.fetchfinancialdata.models import StockData, PredictedStockData
 
 def generate_report(symbol):
     historical_data = StockData.objects.filter(symbol=symbol).order_by('date')
